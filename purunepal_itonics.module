@@ -96,8 +96,8 @@ function purunepal_itonics_products_index_view()
       check_plain($result->category),
       check_plain($result->type),
       check_plain($result->owner_email),
-      check_plain($result->expiry_date),
-      '<a href="' . $base_url . '/' . ROUTE_PREFIX . '/' . $result->id . '/edit">Edit</a> &nbsp; <a href="' . $base_url . '/' . ROUTE_PREFIX . '/' . $result->id . '/delete">Delete</a>'
+      date('Y-m-d',check_plain($result->expiry_date)),
+      '<a href="' . $base_url . '/?q=' . ROUTE_PREFIX . '/' . $result->id . '/edit">Edit</a> &nbsp; <a href="' . $base_url . '/?q=' . ROUTE_PREFIX . '/' . $result->id . '/delete">Delete</a>'
     ];
   }
 
@@ -107,7 +107,7 @@ function purunepal_itonics_products_index_view()
 function purunepal_itonics_product_delete($product_id)
 {
   $result = db_select(TABLE_NAME)->fields(TABLE_NAME)->condition('id', $product_id)->execute()->fetchAssoc('id');
-  if (count($result) > 0) {
+  if ($result && count($result) > 0) {
     $delete = db_delete(TABLE_NAME)->condition('id', $product_id)->execute();
   }
   return purunepal_itonics_products_index_view();

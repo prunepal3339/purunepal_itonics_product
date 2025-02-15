@@ -80,14 +80,41 @@ function purunepal_itonics_products_create_form_submit($form, &$form_state)
   db_insert(TABLE_NAME)
     ->fields([
       'title' => $data['title'],
-      'summary' => $data['summary'],
       'description' => $data['description']['value'],
+      'summary' => $data['summary'],
       'category' => implode(',', $data['category']),
       'type' => $data['type'],
       'owner_email' => $data['owner_email'],
-      'expiry_date' => $data['expiry_date']['date']
+      'expiry_date' => get_timestamp_from_date_array($data['expiry_date'])
     ])
     ->execute();
 
   drupal_set_message(t('Product Created Successfully'));
+}
+
+if (!function_exists('get_timestamp_from_date_array')){
+  function get_timestamp_from_date_array($expiry_date_array) {
+    if (isset($expiry_date_array) && is_array($expiry_date_array)) {
+      $expiry_date = sprintf(
+        '%04d-%02d-%02d',
+        $expiry_date_array['year'],
+        $expiry_date_array['month'],
+        $expiry_date_array['day']
+      );
+      $expiry_timestamp = strtotime($expiry_date);
+  } else {
+      $expiry_timestamp = 0;
+  }
+  return $expiry_timestamp;
+}
+}
+if (!function_exists('get_date_array_from_timestamp')) {
+  function get_date_array_from_timestamp($timestamp) {
+    $date = getdate($timestamp);
+    return [
+      'year' => $date['year'],
+      'month' => $date['mon'],
+      'day' => $date['mday']
+    ];
+  }
 }

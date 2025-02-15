@@ -15,7 +15,7 @@ function purunepal_itonics_products_edit_form($form, &$form_state, $product_id)
     $form['category']['#default_value'] = explode(',', $product['category']);
     $form['type']['#default_value'] = $product['type'];
     $form['owner_email']['#value'] = $product['owner_email'];
-    $form['expiry_date']['#value'] = $product['expiry_date'];
+    $form['expiry_date']['#value'] = get_date_array_from_timestamp($product['expiry_date']);
     $form['submit']['#value'] = t('Update Product');
 
     return $form;
@@ -44,10 +44,37 @@ function purunepal_itonics_products_edit_form_submit($form, &$form_state)
         'category' => implode(',', $data['category']),
         'type' => $data['type'],
         'owner_email' => $data['owner_email'],
-        'expiry_date' => $data['expiry_date']['date']
+        'expiry_date' => get_timestamp_from_date_array($data['expiry_date'])
       ])
       ->condition('id', $data['product_id'])
       ->execute();
   }
   drupal_set_message(t('Product Update Successfully'));
+}
+
+if (!function_exists('get_timestamp_from_date_array')){
+  function get_timestamp_from_date_array($expiry_date_array) {
+    if (isset($expiry_date_array) && is_array($expiry_date_array)) {
+      $expiry_date = sprintf(
+        '%04d-%02d-%02d',
+        $expiry_date_array['year'],
+        $expiry_date_array['month'],
+        $expiry_date_array['day']
+      );
+      $expiry_timestamp = strtotime($expiry_date);
+  } else {
+      $expiry_timestamp = 0;
+  }
+  return $expiry_timestamp;
+}
+}
+if (!function_exists('get_date_array_from_timestamp')) {
+  function get_date_array_from_timestamp($timestamp) {
+    $date = getdate($timestamp);
+    return [
+      'year' => $date['year'],
+      'month' => $date['mon'],
+      'day' => $date['mday']
+    ];
+  }
 }
